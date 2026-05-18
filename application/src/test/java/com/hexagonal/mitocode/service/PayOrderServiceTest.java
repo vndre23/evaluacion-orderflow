@@ -8,6 +8,7 @@ import com.hexagonal.mitocode.model.enums.OrderStatus;
 import com.hexagonal.mitocode.model.vo.Money;
 import com.hexagonal.mitocode.model.vo.OrderId;
 import com.hexagonal.mitocode.port.out.FindOrderByIdPort;
+import com.hexagonal.mitocode.port.out.NotificationService;
 import com.hexagonal.mitocode.port.out.PaymentGateway;
 import com.hexagonal.mitocode.port.out.SaveOrderPort;
 import org.junit.jupiter.api.Assertions;
@@ -39,6 +40,9 @@ class PayOrderServiceTest {
     @Mock
     private PaymentGateway paymentGateway;
 
+    @Mock
+    private NotificationService notificationService;
+
     @InjectMocks
     private PayOrderService payOrderService;
 
@@ -59,6 +63,8 @@ class PayOrderServiceTest {
         // Assert
         Assertions.assertEquals(OrderStatus.PAID, order.getStatus());
         verify(saveOrderPort).save(order);
+
+        verify(notificationService).notifyOrderStatusChange(orderId, order.getStatus());
     }
 
     @Test
@@ -72,6 +78,8 @@ class PayOrderServiceTest {
                 () -> payOrderService.payOrder(orderId));
         verify(paymentGateway, never()).processPayment(any(), any());
         verify(saveOrderPort, never()).save(any());
+
+        verify(notificationService, never()).notifyOrderStatusChange(any(), any());
     }
 
     @Test

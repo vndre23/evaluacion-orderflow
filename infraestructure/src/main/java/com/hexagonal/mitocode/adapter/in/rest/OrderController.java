@@ -7,10 +7,7 @@ import com.hexagonal.mitocode.adapter.in.rest.dto.OrderResponseMapper;
 import com.hexagonal.mitocode.command.AddItemToOrderCommand;
 import com.hexagonal.mitocode.command.CreateOrderCommand;
 import com.hexagonal.mitocode.model.entity.Order;
-import com.hexagonal.mitocode.port.in.AddItemToOrderUseCase;
-import com.hexagonal.mitocode.port.in.CancelOrderUseCase;
-import com.hexagonal.mitocode.port.in.CreateOrderUseCase;
-import com.hexagonal.mitocode.port.in.PayOrderUseCase;
+import com.hexagonal.mitocode.port.in.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,16 +24,19 @@ public class OrderController {
     private final CancelOrderUseCase cancelOrderUseCase;
     private final OrderResponseMapper responseMapper;
 
+    private final GetOrderByIdUseCase getOrderByIdUseCase;
+
     public OrderController(CreateOrderUseCase createOrderUseCase,
                            AddItemToOrderUseCase addItemToOrderUseCase,
                            PayOrderUseCase payOrderUseCase,
                            CancelOrderUseCase cancelOrderUseCase,
-                           OrderResponseMapper responseMapper) {
+                           OrderResponseMapper responseMapper, GetOrderByIdUseCase getOrderByIdUseCase) {
         this.createOrderUseCase = createOrderUseCase;
         this.addItemToOrderUseCase = addItemToOrderUseCase;
         this.payOrderUseCase = payOrderUseCase;
         this.cancelOrderUseCase = cancelOrderUseCase;
         this.responseMapper = responseMapper;
+        this.getOrderByIdUseCase = getOrderByIdUseCase;
     }
 
     @PostMapping
@@ -79,6 +79,11 @@ public class OrderController {
     public ResponseEntity<Void> cancelOrder(@PathVariable String id){
         cancelOrderUseCase.cancelOrder(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable String id) {
+        return ResponseEntity.ok(getOrderByIdUseCase.getOrderById(id));
     }
 
 

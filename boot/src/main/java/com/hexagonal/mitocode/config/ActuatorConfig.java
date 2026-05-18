@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ActuatorConfig {
 
-    @Bean
+    /*@Bean
     public HealthIndicator orderflowHealthIndicator() {
         return () -> Health.up()
                 .withDetail("app", "orderflow")
                 .withDetail("version", "1.0-SNAPSHOT")
                 .withDetail("description", "Order management service")
                 .build();
-    }
+    }*/
 }

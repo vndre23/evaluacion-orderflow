@@ -9,6 +9,7 @@ import com.hexagonal.mitocode.model.enums.OrderStatus;
 import com.hexagonal.mitocode.model.vo.Money;
 import com.hexagonal.mitocode.model.vo.OrderId;
 import com.hexagonal.mitocode.port.out.FindOrderByIdPort;
+import com.hexagonal.mitocode.port.out.NotificationService;
 import com.hexagonal.mitocode.port.out.SaveOrderPort;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ class CancelOrderServiceTest {
     @Mock
     private FindOrderByIdPort findOrderByIdPort;
 
+    @Mock
+    private NotificationService notificationService;
+
     @InjectMocks
     private CancelOrderService cancelOrderService;
 
@@ -50,6 +54,8 @@ class CancelOrderServiceTest {
         // Assert
         Assertions.assertEquals(OrderStatus.CANCELLED, order.getStatus());
         verify(saveOrderPort).save(order);
+
+        verify(notificationService).notifyOrderStatusChange(orderId, order.getStatus());
     }
 
     @Test
@@ -62,6 +68,7 @@ class CancelOrderServiceTest {
         Assertions.assertThrows(OrderNotFoundException.class,
                 () -> cancelOrderService.cancelOrder(orderId));
         verify(saveOrderPort, never()).save(any());
+        verify(notificationService, never()).notifyOrderStatusChange(any(), any());
     }
 
     @Test

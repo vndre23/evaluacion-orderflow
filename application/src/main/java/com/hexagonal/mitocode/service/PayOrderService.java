@@ -6,6 +6,7 @@ import com.hexagonal.mitocode.model.entity.Order;
 import com.hexagonal.mitocode.model.vo.OrderId;
 import com.hexagonal.mitocode.port.in.PayOrderUseCase;
 import com.hexagonal.mitocode.port.out.FindOrderByIdPort;
+import com.hexagonal.mitocode.port.out.NotificationService;
 import com.hexagonal.mitocode.port.out.PaymentGateway;
 import com.hexagonal.mitocode.port.out.SaveOrderPort;
 
@@ -19,12 +20,15 @@ public class PayOrderService implements PayOrderUseCase {
     private final FindOrderByIdPort findOrderByIdPort;
     private final SaveOrderPort saveOrderPort;
 
+    private final NotificationService notificationService;
+
     public PayOrderService(PaymentGateway paymentGateway,
                            FindOrderByIdPort findOrderByIdPort,
-                           SaveOrderPort saveOrderPort) {
+                           SaveOrderPort saveOrderPort, NotificationService notificationService) {
         this.paymentGateway = paymentGateway;
         this.findOrderByIdPort = findOrderByIdPort;
         this.saveOrderPort = saveOrderPort;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -39,6 +43,8 @@ public class PayOrderService implements PayOrderUseCase {
 
         order.pay();
         saveOrderPort.save(order);
+
+        notificationService.notifyOrderStatusChange(order.getId().toString(), order.getStatus());
     }
 
 }

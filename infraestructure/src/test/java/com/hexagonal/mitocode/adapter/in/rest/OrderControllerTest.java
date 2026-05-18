@@ -11,10 +11,8 @@ import com.hexagonal.mitocode.model.entity.OrderItem;
 import com.hexagonal.mitocode.model.enums.OrderStatus;
 import com.hexagonal.mitocode.model.vo.Money;
 import com.hexagonal.mitocode.model.vo.OrderId;
-import com.hexagonal.mitocode.port.in.AddItemToOrderUseCase;
-import com.hexagonal.mitocode.port.in.CancelOrderUseCase;
-import com.hexagonal.mitocode.port.in.CreateOrderUseCase;
-import com.hexagonal.mitocode.port.in.PayOrderUseCase;
+import com.hexagonal.mitocode.port.in.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +48,9 @@ class OrderControllerTest {
 
     @Mock
     private OrderResponseMapper responseMapper;
+
+    @Mock
+    private GetOrderByIdUseCase getOrderByIdUseCase;
 
     @InjectMocks
     private OrderController controller;
@@ -209,4 +210,56 @@ class OrderControllerTest {
         assertNull(response.getBody());
         verify(cancelOrderUseCase).cancelOrder("order-456");
     }
+
+
+    @Test
+    void getOrderById_shouldReturnOkWithOrder() {
+
+        //Arrange
+        Order order = createDomainOrder();
+
+        when(getOrderByIdUseCase.getOrderById("order-123"))
+                .thenReturn(order);
+
+        //Act
+        ResponseEntity<Order> response =
+                controller.getOrderById("order-123");
+
+        //Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(order, response.getBody());
+
+        verify(getOrderByIdUseCase).getOrderById("order-123");
+    }
+
+    @Test
+    void getOrderById_shouldReturnCorrectOrderData() {
+
+        //Arrange
+        Order order = createDomainOrder();
+
+        //Act
+        when(getOrderByIdUseCase.getOrderById(anyString()))
+                .thenReturn(order);
+
+        ResponseEntity<Order> response =
+                controller.getOrderById("550e8400-e29b-41d4-a716-446655440000");
+
+        assertNotNull(response.getBody());
+
+        Order body = response.getBody();
+
+        //Assert
+        assertEquals("customer-1", body.getCustomerId());
+        assertEquals(OrderStatus.PENDING, body.getStatus());
+        assertEquals(
+                "550e8400-e29b-41d4-a716-446655440000",
+                body.getId().toString()
+        );
+
+        verify(getOrderByIdUseCase)
+                .getOrderById("550e8400-e29b-41d4-a716-446655440000");
+    }
+
 }

@@ -47,6 +47,8 @@ public class SecurityConfig {
                         // Añadir items: ADMIN o USER
                         .requestMatchers(HttpMethod.POST, "/api/orders/*/items").hasAnyRole("ADMIN", "USER")
 
+                        //.requestMatchers(HttpMethod.GET, "/api/orders/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()
                         // Cualquier otra petición: requiere autenticación
                         .anyRequest().authenticated()
                 )
